@@ -32,9 +32,17 @@ export async function askSkyProAI(
 
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
-      const rawError = errData.error || '';
-      const polite = 'សូមអភ័យទោស ប្រព័ន្ធកំពុងមមាញឹកបន្តិច។ សូមមេត្តាសាកល្បងម្ដងទៀតនៅបន្តិចក្រោយនេះ។';
-      throw new Error(rawError && !rawError.includes('{') && !rawError.includes('503') ? rawError : polite);
+      let rawError = errData.error || '';
+      if (!rawError) {
+        if (res.status === 404) {
+          rawError = 'មិនអាចស្វែងរក API Route (/api/chat) បានទេ (HTTP 404)។ សូមពិនិត្យមើលការកំណត់នៅលើ Server/Vercel។';
+        } else if (res.status === 401) {
+          rawError = 'មិនទាន់កំណត់ API Key នៅឡើយទេ។ សូមកំណត់ GEMINI_API_KEY ក្នុង Settings។';
+        } else {
+          rawError = `HTTP ${res.status}: បរាជ័យក្នុងការតភ្ជាប់`;
+        }
+      }
+      throw new Error(rawError);
     }
 
     const reader = res.body?.getReader();

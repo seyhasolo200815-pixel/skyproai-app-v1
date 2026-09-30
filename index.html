@@ -2,7 +2,7 @@
 <html lang="km">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>SkyPro AI - ជំនួយការបញ្ញាសិប្បនិម្មិត</title>
     <meta name="description" content="SkyPro AI ជាជំនួយការបញ្ញាសិប្បនិម្មិត ដែលអាចជួយអ្នកក្នុងការស្វែងរកចំណេះដឹង សរសេរអត្ថបទ សរសេរកូដ បកប្រែ និងច្រើនទៀត" />
     <meta property="og:title" content="SkyPro AI - ជំនួយការបញ្ញាសិប្បនិម្មិត" />
@@ -12,6 +12,35 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,300..700;1,300..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      // Prevent double-tap to zoom on iOS and mobile browsers
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function (event) {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, { passive: false });
+
+      // Lock iOS Safari gesture zoom (pinch-to-zoom)
+      document.addEventListener('gesturestart', function (e) {
+        e.preventDefault();
+      });
+      document.addEventListener('gesturechange', function (e) {
+        e.preventDefault();
+      });
+      document.addEventListener('gestureend', function (e) {
+        e.preventDefault();
+      });
+
+      // Prevent multi-touch pinch zoom
+      document.addEventListener('touchmove', function (event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, { passive: false });
+    </script>
   </head>
   <body class="bg-[#050B14] text-slate-100 antialiased selection:bg-blue-500/30 selection:text-blue-200">
     <div id="root"></div>

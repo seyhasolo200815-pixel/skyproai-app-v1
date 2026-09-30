@@ -223,7 +223,16 @@ export default function App() {
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        const errMsg = errJson.error || `HTTP ${res.status}`;
+        let errMsg = errJson.error;
+        if (!errMsg) {
+          if (res.status === 404) {
+            errMsg = "មិនអាចស្វែងរក API Route (/api/chat) បានទេ (HTTP 404)។ សូមពិនិត្យមើល Vercel Serverless Function ឬ Environment Variables។";
+          } else if (res.status === 401) {
+            errMsg = "មិនទាន់កំណត់ API Key នៅឡើយទេ។ សូមកំណត់ GEMINI_API_KEY នៅក្នុង Vercel Project Settings។";
+          } else {
+            errMsg = `HTTP ${res.status}: បរាជ័យក្នុងការតភ្ជាប់`;
+          }
+        }
         throw new Error(errMsg);
       }
 
@@ -681,7 +690,7 @@ export default function App() {
                     }}
                     placeholder="សួរ SkyPro AI ជាភាសាខ្មែរ, ប្រាប់ឱ្យគូររូប ឬទម្លាក់ File..."
                     rows={1}
-                    className="flex-1 bg-transparent border-none outline-none text-slate-100 placeholder-slate-500 resize-none max-h-36 py-2 text-sm md:text-base leading-relaxed"
+                    className="flex-1 bg-transparent border-none outline-none text-slate-100 placeholder-slate-500 resize-none max-h-36 py-2 text-base leading-relaxed touch-manipulation"
                   />
 
                   <button

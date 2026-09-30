@@ -7,13 +7,33 @@
   
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    touch-action: manipulation;
   }
   
   body {
     font-family: var(--font-khmer);
     background-color: #050b14;
     color: #f1f5f9;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
   }
+}
+
+/* Global Mobile Input Zoom Prevention */
+input, textarea, select, button {
+  touch-action: manipulation;
+}
+
+@media screen and (max-width: 768px) {
+  input, textarea, select, button {
+    font-size: 16px !important;
+  }
+}
+
+input, textarea {
+  touch-action: manipulation;
 }
 
 /* Custom glowing and glass effects */
