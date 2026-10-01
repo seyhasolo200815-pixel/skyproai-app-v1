@@ -24,7 +24,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
   const parts = sanitizedContent.split(/(```[\s\S]*?```)/g);
 
   return (
-    <div className="space-y-3 leading-relaxed text-sm md:text-base text-slate-100">
+    <div className="space-y-3 leading-relaxed text-sm md:text-base text-slate-800">
       {parts.map((part, index) => {
         if (part.startsWith('```') && part.endsWith('```')) {
           // Extract language and code
@@ -40,17 +40,17 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
           return (
             <div
               key={index}
-              className="my-3 overflow-hidden rounded-xl border border-slate-700/80 bg-[#080d1a] shadow-lg"
+              className="my-3 overflow-hidden rounded-xl border border-slate-700/80 bg-[#0f172a] shadow-md"
             >
               {/* Code block header bar */}
-              <div className="flex items-center justify-between border-b border-slate-800 bg-[#0c1426] px-4 py-2 text-xs text-slate-400">
+              <div className="flex items-center justify-between border-b border-slate-800 bg-[#1e293b] px-4 py-2 text-xs text-slate-300">
                 <span className="font-mono font-semibold uppercase tracking-wider text-sky-400">
                   {language}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleCopy(code, index)}
-                  className="flex items-center gap-1.5 rounded-md px-2 py-1 text-slate-300 hover:bg-slate-800 hover:text-white transition"
+                  className="flex items-center gap-1.5 rounded-md px-2 py-1 text-slate-300 hover:bg-slate-700 hover:text-white transition"
                 >
                   {copiedIndex === index ? (
                     <>
@@ -67,7 +67,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
               </div>
 
               {/* Code content */}
-              <pre className="overflow-x-auto p-4 text-xs sm:text-sm font-mono text-cyan-200 leading-normal selection:bg-blue-600/40">
+              <pre className="overflow-x-auto p-4 text-xs sm:text-sm font-mono text-sky-200 leading-normal selection:bg-blue-600/40">
                 <code>{code}</code>
               </pre>
             </div>
@@ -118,7 +118,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
 
               // Horizontal rule
               if (trimmed === '---' || trimmed === '***' || trimmed === '___') {
-                return <hr key={lIdx} className="my-3 border-t border-slate-800" />;
+                return <hr key={lIdx} className="my-3 border-t border-slate-200" />;
               }
 
               // Display Math Formula block ($$...$$)
@@ -127,7 +127,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
                 return (
                   <div
                     key={lIdx}
-                    className="my-2.5 p-3.5 rounded-xl bg-[#091124] border border-sky-500/40 text-center font-mono text-sm sm:text-base text-sky-200 overflow-x-auto shadow-inner"
+                    className="my-2.5 p-3.5 rounded-xl bg-blue-50/60 border border-blue-200 text-center font-mono text-sm sm:text-base text-blue-900 overflow-x-auto shadow-xs"
                   >
                     {formula}
                   </div>
@@ -139,7 +139,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
                 return (
                   <div
                     key={lIdx}
-                    className="my-2.5 p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/50 to-teal-950/40 border border-emerald-500/60 text-emerald-200 shadow-lg"
+                    className="my-2.5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 shadow-xs"
                   >
                     {renderInlineFormatting(trimmed)}
                   </div>
@@ -149,21 +149,21 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
               // Headings
               if (trimmed.startsWith('### ')) {
                 return (
-                  <h4 key={lIdx} className="text-base font-bold text-white pt-2 text-sky-300">
+                  <h4 key={lIdx} className="text-base font-bold text-slate-900 pt-2 text-blue-700">
                     {renderInlineFormatting(trimmed.slice(4))}
                   </h4>
                 );
               }
               if (trimmed.startsWith('## ')) {
                 return (
-                  <h3 key={lIdx} className="text-lg font-extrabold text-white pt-3 text-cyan-200 border-b border-slate-800/80 pb-1">
+                  <h3 key={lIdx} className="text-lg font-bold text-slate-900 pt-3 border-b border-slate-200 pb-1">
                     {renderInlineFormatting(trimmed.slice(3))}
                   </h3>
                 );
               }
               if (trimmed.startsWith('# ')) {
                 return (
-                  <h2 key={lIdx} className="text-xl font-black text-white pt-4 text-blue-300">
+                  <h2 key={lIdx} className="text-xl font-bold text-slate-900 pt-4">
                     {renderInlineFormatting(trimmed.slice(2))}
                   </h2>
                 );
@@ -174,8 +174,8 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
                 const bulletContent = trimmed.slice(2);
                 return (
                   <div key={lIdx} className="flex items-start gap-2.5 pl-2 py-0.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-sky-400 mt-2 shrink-0 shadow-[0_0_6px_#38bdf8]" />
-                    <span className="text-slate-200">{renderInlineFormatting(bulletContent)}</span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600 mt-2 shrink-0" />
+                    <span className="text-slate-800">{renderInlineFormatting(bulletContent)}</span>
                   </div>
                 );
               }
@@ -185,10 +185,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
               if (numMatch) {
                 return (
                   <div key={lIdx} className="flex items-start gap-2.5 pl-2 py-0.5">
-                    <span className="font-bold text-sky-400 font-mono text-xs mt-0.5 shrink-0">
+                    <span className="font-bold text-blue-600 font-mono text-xs mt-0.5 shrink-0">
                       {numMatch[1]}.
                     </span>
-                    <span className="text-slate-200">{renderInlineFormatting(numMatch[2])}</span>
+                    <span className="text-slate-800">{renderInlineFormatting(numMatch[2])}</span>
                   </div>
                 );
               }
@@ -198,7 +198,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
                 return (
                   <blockquote
                     key={lIdx}
-                    className="border-l-4 border-sky-500 bg-sky-950/20 pl-3 py-1 my-1 italic text-slate-300 rounded-r"
+                    className="border-l-4 border-blue-500 bg-blue-50/70 pl-3 py-1.5 my-1.5 italic text-slate-700 rounded-r"
                   >
                     {renderInlineFormatting(trimmed.slice(2))}
                   </blockquote>
@@ -206,7 +206,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
               }
 
               return (
-                <p key={lIdx} className="text-slate-200 leading-relaxed">
+                <p key={lIdx} className="text-slate-800 leading-relaxed">
                   {renderInlineFormatting(line)}
                 </p>
               );
@@ -378,7 +378,7 @@ function renderInlineText(text: string, baseKey: number): React.ReactNode {
       return (
         <code
           key={`${baseKey}-code-${i}`}
-          className="rounded bg-slate-800/90 px-1.5 py-0.5 font-mono text-xs text-sky-300 border border-slate-700/60"
+          className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-blue-700 border border-slate-200"
         >
           {subPart.slice(1, -1)}
         </code>
@@ -392,7 +392,7 @@ function renderInlineText(text: string, baseKey: number): React.ReactNode {
         return (
           <span
             key={`${baseKey}-${i}-math-${k}`}
-            className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-sky-950/40 text-cyan-200 font-mono text-xs sm:text-sm border border-cyan-800/40 font-medium"
+            className="inline-block px-1.5 py-0.5 mx-0.5 rounded bg-blue-50 text-blue-800 font-mono text-xs sm:text-sm border border-blue-200 font-medium"
           >
             {mPart.slice(1, -1)}
           </span>
@@ -404,7 +404,7 @@ function renderInlineText(text: string, baseKey: number): React.ReactNode {
       return boldParts.map((bPart, j) => {
         if (bPart.startsWith('**') && bPart.endsWith('**')) {
           return (
-            <strong key={`${baseKey}-${i}-${k}-${j}`} className="font-bold text-white">
+            <strong key={`${baseKey}-${i}-${k}-${j}`} className="font-bold text-slate-900">
               {bPart.slice(2, -2)}
             </strong>
           );
