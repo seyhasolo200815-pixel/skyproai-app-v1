@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Paperclip, ArrowUp, X, FileText, Image as ImageIcon, 
+  Paperclip, ArrowUp, ArrowDown, X, FileText, Image as ImageIcon, 
   Copy, Check, Plus, MessageSquare, Trash2, Menu, Smartphone, LayoutDashboard, AlertCircle, Sparkles, Palette
 } from "lucide-react";
 import { HeroSection } from "./components/HeroSection";
@@ -72,7 +72,23 @@ export default function App() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatBottomRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
+
+  // Monitor scroll in message feed container to show/hide scroll to bottom button
+  const handleMessagesScroll = () => {
+    if (!messagesContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    // Show button when scrolled up more than 120px from bottom
+    const isAwayFromBottom = scrollHeight - scrollTop - clientHeight > 120;
+    setShowScrollBottom(isAwayFromBottom);
+  };
+
+  const scrollToBottom = () => {
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    setShowScrollBottom(false);
+  };
 
   useEffect(() => {
     const saved = localStorage.getItem("skypro_saved_sessions");
@@ -91,7 +107,10 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Only auto scroll down if user is near the bottom
+    if (!messagesContainerRef.current || !showScrollBottom) {
+      chatBottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [sessions, isLoading]);
 
   const saveSessions = (data: ChatSession[]) => {
@@ -329,7 +348,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0B0F17] text-slate-100 overflow-hidden font-['Kantumruy_Pro',sans-serif]">
+    <div className="flex h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-[#0B0F17] text-slate-100 font-['Kantumruy_Pro',sans-serif]">
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
       )}
@@ -412,9 +431,9 @@ export default function App() {
       </aside>
 
       {/* MAIN WORKSPACE OR SHOWCASE */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden bg-gradient-to-b from-[#0B0F17] via-[#0B0F17] to-[#080B11]">
-        {/* Top Header */}
-        <header className="h-14 border-b border-slate-800/60 flex items-center justify-between px-4 bg-[#080d17]/80 backdrop-blur-md">
+      <main className="flex-1 flex flex-col h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-gradient-to-b from-[#0B0F17] via-[#0B0F17] to-[#080B11] relative">
+        {/* Top Header - Sticky Top */}
+        <header className="sticky top-0 z-30 shrink-0 h-14 border-b border-slate-800/80 flex items-center justify-between px-3 sm:px-4 bg-[#080d17]/95 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden text-slate-400 hover:text-white">
               <Menu size={20} />
@@ -482,10 +501,14 @@ export default function App() {
             </div>
           </div>
         ) : (
-          /* ULTRA-FAST MULTIMODAL CHAT WORKSPACE */
+          /* ULTRA-FAST MULTIMODAL CHAT WORKSPACE (ChatGPT App-like layout) */
           <>
-            {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto">
+            {/* MESSAGES FEED CONTAINER */}
+            <div
+              ref={messagesContainerRef}
+              onScroll={handleMessagesScroll}
+              className="flex-1 overflow-y-auto overscroll-y-contain px-3 sm:px-4 md:px-8 py-2 relative scroll-smooth"
+            >
               {activeChat && activeChat.messages.length > 0 ? (
                 activeChat.messages.map((m, idx) => (
                   <div
@@ -629,82 +652,96 @@ export default function App() {
               <div ref={chatBottomRef} />
             </div>
 
-            {/* INPUT BAR */}
-            <div className="w-full max-w-4xl mx-auto px-4 pb-4">
-              <div className="bg-[#121827] border border-slate-800 rounded-2xl p-3 shadow-2xl focus-within:border-sky-500/70 transition-all">
-                {attachments.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2 p-1">
-                    {attachments.map((file, i) => (
-                      <div key={i} className="flex items-center gap-1.5 bg-slate-800 text-xs text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700">
-                        {file.mimeType.startsWith("image/") ? <ImageIcon size={13} className="text-sky-400" /> : <FileText size={13} />}
-                        <span className="max-w-[120px] truncate">{file.name}</span>
-                        <button onClick={() => setAttachments(attachments.filter((_, idx) => idx !== i))} className="hover:text-red-400">
-                          <X size={13} />
-                        </button>
-                      </div>
-                    ))}
+            {/* FLOATING SCROLL TO BOTTOM BUTTON (like ChatGPT Mobile) */}
+            {showScrollBottom && (
+              <button
+                type="button"
+                onClick={scrollToBottom}
+                aria-label="ចុះទៅសារចុងក្រោយ"
+                className="absolute bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 sm:right-8 z-30 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800/95 hover:bg-slate-700 text-sky-400 hover:text-white border border-slate-700/80 shadow-2xl flex items-center justify-center transition-all duration-200 active:scale-90 backdrop-blur-md cursor-pointer animate-in fade-in zoom-in-75"
+              >
+                <ArrowDown size={18} />
+              </button>
+            )}
+
+            {/* INPUT BAR - Sticky Bottom with Safe Area Inset */}
+            <div className="sticky bottom-0 z-20 shrink-0 w-full bg-gradient-to-t from-[#0B0F17] via-[#0B0F17]/95 to-transparent pt-2 px-3 sm:px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+              <div className="w-full max-w-4xl mx-auto">
+                <div className="bg-[#121827] border border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-2xl focus-within:border-sky-500/70 transition-all">
+                  {attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2 p-1">
+                      {attachments.map((file, i) => (
+                        <div key={i} className="flex items-center gap-1.5 bg-slate-800 text-xs text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700">
+                          {file.mimeType.startsWith("image/") ? <ImageIcon size={13} className="text-sky-400" /> : <FileText size={13} />}
+                          <span className="max-w-[120px] truncate">{file.name}</span>
+                          <button onClick={() => setAttachments(attachments.filter((_, idx) => idx !== i))} className="hover:text-red-400">
+                            <X size={13} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex items-end gap-2">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFiles}
+                      multiple
+                      accept="image/*,application/pdf,text/plain"
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="p-2 text-slate-400 hover:text-sky-400 hover:bg-slate-800/60 rounded-xl transition"
+                      title="ភ្ជាប់រូបភាព ឬឯកសារ"
+                    >
+                      <Paperclip size={20} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInputPrompt((prev) =>
+                          prev
+                            ? `សូមបង្កើតរូបភាព AI: ${prev}`
+                            : "សូមបង្កើតរូបភាព AI ស្អាតប្លែកកម្រិត 4K: "
+                        );
+                      }}
+                      className="p-2 text-slate-400 hover:text-amber-400 hover:bg-slate-800/60 rounded-xl transition"
+                      title="បង្កើតរូបភាព AI (Image Generation)"
+                    >
+                      <Sparkles size={19} className="text-amber-400/90" />
+                    </button>
+
+                    <textarea
+                      value={inputPrompt}
+                      onChange={(e) => setInputPrompt(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          sendMessage();
+                        }
+                      }}
+                      placeholder="សួរ SkyPro AI ជាភាសាខ្មែរ, ប្រាប់ឱ្យគូររូប ឬទម្លាក់ File..."
+                      rows={1}
+                      className="flex-1 bg-transparent border-none outline-none text-slate-100 placeholder-slate-500 resize-none max-h-36 py-2 text-base leading-relaxed touch-manipulation"
+                    />
+
+                    <button
+                      type="button"
+                      disabled={(!inputPrompt.trim() && attachments.length === 0) || isLoading}
+                      onClick={() => sendMessage()}
+                      className={`p-2.5 rounded-xl transition-all ${
+                        (inputPrompt.trim() || attachments.length > 0) && !isLoading
+                          ? "bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/30 hover:opacity-90 active:scale-95"
+                          : "bg-slate-800 text-slate-600 cursor-not-allowed"
+                      }`}
+                    >
+                      <ArrowUp size={18} />
+                    </button>
                   </div>
-                )}
-
-                <div className="flex items-end gap-2">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFiles}
-                    multiple
-                    accept="image/*,application/pdf,text/plain"
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="p-2 text-slate-400 hover:text-sky-400 hover:bg-slate-800/60 rounded-xl transition"
-                    title="ភ្ជាប់រូបភាព ឬឯកសារ"
-                  >
-                    <Paperclip size={20} />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInputPrompt((prev) =>
-                        prev
-                          ? `សូមបង្កើតរូបភាព AI: ${prev}`
-                          : "សូមបង្កើតរូបភាព AI ស្អាតប្លែកកម្រិត 4K: "
-                      );
-                    }}
-                    className="p-2 text-slate-400 hover:text-amber-400 hover:bg-slate-800/60 rounded-xl transition"
-                    title="បង្កើតរូបភាព AI (Image Generation)"
-                  >
-                    <Sparkles size={19} className="text-amber-400/90" />
-                  </button>
-
-                  <textarea
-                    value={inputPrompt}
-                    onChange={(e) => setInputPrompt(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        sendMessage();
-                      }
-                    }}
-                    placeholder="សួរ SkyPro AI ជាភាសាខ្មែរ, ប្រាប់ឱ្យគូររូប ឬទម្លាក់ File..."
-                    rows={1}
-                    className="flex-1 bg-transparent border-none outline-none text-slate-100 placeholder-slate-500 resize-none max-h-36 py-2 text-base leading-relaxed touch-manipulation"
-                  />
-
-                  <button
-                    type="button"
-                    disabled={(!inputPrompt.trim() && attachments.length === 0) || isLoading}
-                    onClick={() => sendMessage()}
-                    className={`p-2.5 rounded-xl transition-all ${
-                      (inputPrompt.trim() || attachments.length > 0) && !isLoading
-                        ? "bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/30 hover:opacity-90 active:scale-95"
-                        : "bg-slate-800 text-slate-600 cursor-not-allowed"
-                    }`}
-                  >
-                    <ArrowUp size={18} />
-                  </button>
                 </div>
               </div>
             </div>
