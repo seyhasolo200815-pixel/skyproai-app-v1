@@ -27,8 +27,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartChat }) => {
 
             {/* Main Headline */}
             <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl font-['Plus_Jakarta_Sans',sans-serif]">
-              SkyPro <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-300 drop-shadow-[0_0_20px_rgba(56,189,248,0.4)]">AI</span>
+              K-Chat <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-sky-300 to-cyan-300 drop-shadow-[0_0_20px_rgba(56,189,248,0.4)]">AI</span>
             </h1>
+
+            {/* Tagline */}
+            <p className="mt-2 text-xs font-mono font-semibold text-sky-400">
+              ⚡ បញ្ញាសិប្បនិម្មិតកម្រិតខ្ពស់ ឆ្លើយតបរហ័សទាន់ចិត្ត
+            </p>
 
             {/* Khmer Subtitle */}
             <p className="mt-3 text-xl sm:text-2xl font-bold text-slate-100 sm:mt-4">
@@ -37,7 +42,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartChat }) => {
 
             {/* Khmer Paragraph */}
             <p className="mt-4 text-base sm:text-lg text-slate-400 max-w-2xl leading-relaxed">
-              SkyPro AI ជាជំនួយការបញ្ញាសិប្បនិម្មិត ដែលអាចជួយអ្នកក្នុងការស្វែងរកចំណេះដឹង សរសេរអត្ថបទ សរសេរកូដ បកប្រែ និងច្រើនទៀត...
+              K-Chat AI ជាជំនួយការបញ្ញាសិប្បនិម្មិតកម្រិតខ្ពស់ ដែលអាចជួយអ្នកក្នុងការដោះស្រាយលំហាត់គណិត-វិទ្យាសាស្ត្រពិត សរសេរកូដ បង្កើតរូបភាព AI និងស្វែងរកចំណេះដឹង...
             </p>
 
             {/* CTA Button */}

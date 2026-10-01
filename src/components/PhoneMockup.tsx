@@ -22,7 +22,7 @@ interface PhoneMockupProps {
 export const PhoneMockup: React.FC<PhoneMockupProps> = ({ onExpandMobileView }) => {
   const [mobileTab, setMobileTab] = useState<'home' | 'chat' | 'docs' | 'account'>('home');
   const [mobileChatMessages, setMobileChatMessages] = useState<Array<{ sender: 'user' | 'bot'; text: string }>>([
-    { sender: 'bot', text: 'សួស្តី! 👋 ខ្ញុំជា SkyPro AI តើខ្ញុំអាចជួយអ្វីបាន?' }
+    { sender: 'bot', text: 'សួស្តី! 👋 ខ្ញុំគឺ K-Chat AI តើខ្ញុំអាចជួយអ្វីអ្នកបានថ្ងៃនេះ?' }
   ]);
   const [mobileInput, setMobileInput] = useState('');
   const [mobileIsTyping, setMobileIsTyping] = useState(false);
@@ -150,15 +150,15 @@ export const PhoneMockup: React.FC<PhoneMockupProps> = ({ onExpandMobileView }) 
                   {/* Floating speech bubble */}
                   <div className="absolute -top-1 -right-3 z-10 rounded-lg border border-cyan-400/40 bg-[#0a1426]/95 px-2 py-1 shadow-md text-left">
                     <p className="text-[8px] font-bold text-white leading-none">Hello!</p>
-                    <p className="text-[7px] text-blue-200 leading-none">I'm SkyPro</p>
-                    <p className="text-[7px] text-slate-300 leading-none">How can I help you?</p>
+                    <p className="text-[7px] text-blue-200 leading-none">I'm K-Chat</p>
+                    <p className="text-[7px] text-cyan-300 leading-none">AI Assistant</p>
                   </div>
 
                   {/* Mascot circle image */}
                   <div className="relative h-24 w-24 rounded-2xl border border-blue-500/30 bg-[#0b162c] p-1 shadow-[0_0_20px_rgba(56,189,248,0.2)]">
                     <img
                       src={SKYPRO_MASCOT}
-                      alt="SkyPro Mobile Mascot"
+                      alt="K-Chat Mobile Mascot"
                       className="h-full w-full object-cover rounded-xl"
                     />
                   </div>
@@ -166,7 +166,7 @@ export const PhoneMockup: React.FC<PhoneMockupProps> = ({ onExpandMobileView }) 
 
                 {/* Big Title */}
                 <h3 className="text-lg font-extrabold text-white tracking-tight mt-1 font-['Plus_Jakarta_Sans',sans-serif]">
-                  SkyPro <span className="text-blue-400">AI</span>
+                  K-Chat <span className="text-blue-400">AI</span>
                 </h3>
 
                 {/* Subtitle in Khmer */}

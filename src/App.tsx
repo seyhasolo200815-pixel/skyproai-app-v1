@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Paperclip, ArrowUp, ArrowDown, X, FileText, Image as ImageIcon, 
+  Paperclip, ArrowUp, ArrowDown, Mic, MicOff, X, FileText, Image as ImageIcon, 
   Copy, Check, Plus, MessageSquare, Trash2, Menu, Smartphone, LayoutDashboard, AlertCircle, Sparkles, Palette
 } from "lucide-react";
 import { HeroSection } from "./components/HeroSection";
@@ -75,6 +75,97 @@ export default function App() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  // Web Speech API Voice Transcription Handler
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {
+          // ignore
+        }
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("កម្មវិធីរុករក (Browser) របស់អ្នកមិនទាន់គាំទ្រ Web Speech API ទេ។ សូមប្រើ Google Chrome ឬ Safari។");
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      // Try Khmer first, fallback to browser default if not supported
+      recognition.lang = "km-KH";
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        let interim = "";
+        let final = "";
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            final += event.results[i][0].transcript;
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+
+        const newText = (final || interim).trim();
+        if (newText) {
+          setInputPrompt((prev) => {
+            const base = prev.trim();
+            if (!base) return newText;
+            if (base.endsWith(newText)) return base;
+            return `${base} ${newText}`;
+          });
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("Speech recognition error:", event.error);
+        if (event.error !== "no-speech") {
+          setIsListening(false);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error("Speech recognition start failed:", err);
+      setIsListening(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, []);
 
   // Monitor scroll in message feed container to show/hide scroll to bottom button
   const handleMessagesScroll = () => {
@@ -262,26 +353,36 @@ export default function App() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let streamAccumulator = "";
+      let hasReceivedFirstToken = false;
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
-        streamAccumulator += chunk;
+        if (chunk) {
+          streamAccumulator += chunk;
 
-        setSessions((prev) =>
-          prev.map((s) => {
-            if (s.id === activeChat.id) {
-              const msgs = [...s.messages];
-              msgs[msgs.length - 1] = {
-                role: "assistant",
-                content: streamAccumulator,
-              };
-              return { ...s, messages: msgs };
-            }
-            return s;
-          })
-        );
+          if (!hasReceivedFirstToken) {
+            hasReceivedFirstToken = true;
+            // Immediately append first token and clear thinking indicator the millisecond it arrives
+            setIsLoading(false);
+            setIsGeneratingImage(false);
+          }
+
+          setSessions((prev) =>
+            prev.map((s) => {
+              if (s.id === activeChat.id) {
+                const msgs = [...s.messages];
+                msgs[msgs.length - 1] = {
+                  role: "assistant",
+                  content: streamAccumulator,
+                };
+                return { ...s, messages: msgs };
+              }
+              return s;
+            })
+          );
+        }
       }
 
       // Finalize and save
@@ -360,9 +461,9 @@ export default function App() {
             <BrandLogo className="w-8 h-8" />
             <div>
               <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-sky-400 via-indigo-300 to-sky-200 bg-clip-text text-transparent font-['Plus_Jakarta_Sans',sans-serif]">
-                SkyPro AI
+                K-Chat AI
               </span>
-              <p className="text-[10px] text-slate-500 font-mono tracking-wider">SUPREME HYBRID</p>
+              <p className="text-[10px] text-slate-400 font-mono tracking-wider">AI ASSISTANT</p>
             </div>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden text-slate-400 hover:text-white">
@@ -439,7 +540,7 @@ export default function App() {
               <Menu size={20} />
             </button>
             <span className="text-sm font-medium text-slate-200 truncate max-w-xs md:max-w-md">
-              {viewMode === "workspace" ? (activeChat?.title || "SkyPro AI") : "ទម្រង់ទូរស័ព្ទ & ផ្ទាំង Showcase"}
+              {viewMode === "workspace" ? (activeChat?.title || "K-Chat AI") : "ទម្រង់ទូរស័ព្ទ & ផ្ទាំង Showcase"}
             </span>
           </div>
           
@@ -528,8 +629,8 @@ export default function App() {
                     </div>
 
                     <div className="flex-1 space-y-2 overflow-hidden">
-                      <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                        {m.role === "assistant" ? "SKYPRO INTELLIGENCE" : "អ្នកប្រើប្រាស់"}
+                      <div className="text-[11px] font-semibold uppercase tracking-wider text-sky-400/90 font-mono">
+                        {m.role === "assistant" ? "K-Chat AI" : "អ្នកប្រើប្រាស់"}
                       </div>
 
                       {m.attachments && m.attachments.length > 0 && (
@@ -558,12 +659,12 @@ export default function App() {
                               {isGeneratingImage ? (
                                 <>
                                   <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-spin" />
-                                  <span className="text-amber-300 font-medium">SkyPro កំពុងគូររូបភាព...</span>
+                                  <span className="text-amber-300 font-medium">K-Chat កំពុងគូររូបភាព...</span>
                                 </>
                               ) : (
                                 <>
                                   <span className="h-2 w-2 rounded-full bg-sky-400 animate-ping" />
-                                  <span>SkyPro AI កំពុងវិភាគ...</span>
+                                  <span>K-Chat AI កំពុងវិភាគ...</span>
                                 </>
                               )}
                             </div>
@@ -589,10 +690,13 @@ export default function App() {
                 <div className="h-full flex flex-col items-center justify-center text-center px-4 py-8">
                   <BrandLogo className="w-16 h-16 mb-4" />
                   <h2 className="text-xl md:text-2xl font-bold text-slate-100 mb-2">
-                    សួស្តី! ខ្ញុំគឺ SkyPro AI
+                    សួស្តី! ខ្ញុំគឺ K-Chat AI
                   </h2>
+                  <p className="text-sky-300/90 text-xs font-mono font-medium mb-3">
+                    ប្រព័ន្ធបញ្ញាសិប្បនិម្មិតល្បឿនលឿន និងឆ្លាតវៃ
+                  </p>
                   <p className="text-slate-400 text-sm max-w-md leading-relaxed mb-6">
-                    ជំនួយការបញ្ញាសិប្បនិម្មិតល្បឿនលឿនកម្រិតខ្ពស់។ ខ្ញុំអាចជួយដោះស្រាយលំហាត់, សរសេរកូដ, វិភាគរូបភាព និងអានឯកសារ PDF ជាភាសាខ្មែរយ៉ាងរហ័ស។
+                    ខ្ញុំគឺ K-Chat AI ជាកំពូលបញ្ញាសិប្បនិម្មិតកម្រិតខ្ពស់។ ខ្ញុំអាចជួយដោះស្រាយលំហាត់គណិត-វិទ្យាសាស្ត្រពិត, សរសេរកូដ, វិភាគរូបភាព និងឯកសារ PDF ជាភាសាខ្មែរយ៉ាងរហ័ស និងឆ្លាតវៃបំផុត។
                   </p>
 
                   {/* Fast Starter Prompts */}
@@ -639,12 +743,12 @@ export default function App() {
                   {isGeneratingImage ? (
                     <>
                       <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-                      <span className="text-amber-300">SkyPro កំពុងគូររូបភាព...</span>
+                      <span className="text-amber-300">K-Chat កំពុងគូររូបភាព...</span>
                     </>
                   ) : (
                     <>
                       <BrandLogo className="w-4 h-4 animate-spin" />
-                      <span>SkyPro AI កំពុងវិភាគ...</span>
+                      <span>K-Chat AI កំពុងវិភាគ...</span>
                     </>
                   )}
                 </div>
@@ -682,6 +786,23 @@ export default function App() {
                     </div>
                   )}
 
+                  {/* Active Voice Listening Banner */}
+                  {isListening && (
+                    <div className="flex items-center justify-between mb-2 px-3 py-1.5 bg-red-950/50 border border-red-800/60 rounded-xl text-xs text-red-200 animate-pulse">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+                        <span className="font-medium">កំពុងស្ដាប់សំឡេង... សូមនិយាយជាភាសាខ្មែរ ឬអង់គ្លេស</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={toggleVoiceInput}
+                        className="text-[11px] underline text-red-400 hover:text-red-200"
+                      >
+                        បញ្ឈប់
+                      </button>
+                    </div>
+                  )}
+
                   <div className="flex items-end gap-2">
                     <input
                       type="file"
@@ -715,6 +836,27 @@ export default function App() {
                       <Sparkles size={19} className="text-amber-400/90" />
                     </button>
 
+                    {/* Microphone Voice Input (Web Speech API) */}
+                    <button
+                      type="button"
+                      onClick={toggleVoiceInput}
+                      className={`p-2 rounded-xl transition flex items-center justify-center relative ${
+                        isListening
+                          ? "text-red-400 bg-red-500/20 ring-2 ring-red-500/60 shadow-[0_0_12px_rgba(239,68,68,0.5)]"
+                          : "text-slate-400 hover:text-sky-400 hover:bg-slate-800/60"
+                      }`}
+                      title={isListening ? "កំពុងស្ដាប់... ចុចដើម្បីបញ្ឈប់ (Stop Voice Input)" : "ចុចដើម្បីនិយាយសំឡេង (Voice to Text)"}
+                    >
+                      {isListening ? (
+                        <>
+                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping" />
+                          <MicOff size={19} className="animate-pulse text-red-400" />
+                        </>
+                      ) : (
+                        <Mic size={19} />
+                      )}
+                    </button>
+
                     <textarea
                       value={inputPrompt}
                       onChange={(e) => setInputPrompt(e.target.value)}
@@ -724,7 +866,7 @@ export default function App() {
                           sendMessage();
                         }
                       }}
-                      placeholder="សួរ SkyPro AI ជាភាសាខ្មែរ, ប្រាប់ឱ្យគូររូប ឬទម្លាក់ File..."
+                      placeholder="សួរ K-Chat AI ជាភាសាខ្មែរ, ប្រាប់ឱ្យគូររូប ឬចុច Mic និយាយ..."
                       rows={1}
                       className="flex-1 bg-transparent border-none outline-none text-slate-100 placeholder-slate-500 resize-none max-h-36 py-2 text-base leading-relaxed touch-manipulation"
                     />

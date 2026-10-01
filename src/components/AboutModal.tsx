@@ -31,20 +31,20 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-950/80 px-2.5 py-0.5 text-xs text-blue-300 border border-blue-800/40 mb-2">
               <Bot className="h-3.5 w-3.5" />
-              <span>អំពី SkyPro AI</span>
+              <span>អំពី K-Chat AI</span>
             </div>
             <h3 className="text-2xl font-extrabold text-white">
-              ជំនួយការ AI ឆ្លាតវៃសម្រាប់កម្ពុជា
+              K-Chat AI Intelligence
             </h3>
             <p className="mt-1 text-xs text-slate-300">
-              អភិវឌ្ឍឡើងដើម្បីផ្តល់ដំណោះស្រាយបញ្ញាសិប្បនិម្មិតទំនើប ឆ្លើយតបជាភាសាខ្មែរយ៉ាងរលូន។
+              ដំណោះស្រាយបញ្ញាសិប្បនិម្មិតទំនើប ឆ្លើយតបជាភាសាខ្មែរយ៉ាងរហ័សទាន់ចិត្ត និងត្រឹមត្រូវ។
             </p>
           </div>
         </div>
 
         <div className="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-blue-900/40 pt-4">
           <p>
-            <strong>SkyPro AI</strong> ត្រូវបានបង្កើតឡើងដើម្បីបំពេញតម្រូវការសិក្សា ស្រាវជ្រាវ អាជីវកម្ម និងការបង្កើតមាតិកាថ្មីៗ។ ប្រព័ន្ធរបស់យើងគាំទ្រការសន្ទនាជាភាសាខ្មែរយ៉ាងពេញលេញ និងត្រឹមត្រូវ ជួយអ្នកក្នុងការសរសេរអត្ថបទ សរសេរកូដ បកប្រែ និងស្វែងរកចំណេះដឹង។
+            <strong>K-Chat AI</strong> គឺជាប្រព័ន្ធបញ្ញាសិប្បនិម្មិតកម្រិតខ្ពស់ ដែលគាំទ្រការសន្ទនាជាភាសាខ្មែរយ៉ាងពេញលេញ និងត្រឹមត្រូវ ជួយអ្នកក្នុងការដោះស្រាយលំហាត់វិទ្យាសាស្ត្រពិត គណិតវិទ្យា សរសេរអត្ថបទ សរសេរកូដ បកប្រែ និងបង្កើតរូបភាព AI ស្អាតៗ។
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">

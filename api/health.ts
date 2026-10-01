@@ -20,7 +20,7 @@ export default async function handler(req: any, res?: any) {
     return res.status(200).json({
       status: 'ok',
       hasKey,
-      service: 'SkyPro AI Vercel Serverless',
+      service: 'K-Chat AI Vercel Serverless',
       time: new Date().toISOString()
     });
   }
@@ -37,7 +37,7 @@ export default async function handler(req: any, res?: any) {
     JSON.stringify({
       status: 'ok',
       hasKey,
-      service: 'SkyPro AI Vercel Serverless',
+      service: 'K-Chat AI Vercel Serverless',
       time: new Date().toISOString()
     }),
     {
